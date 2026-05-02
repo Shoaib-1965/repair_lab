@@ -208,14 +208,82 @@ class _NewJobScreenState extends State<NewJobScreen> {
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     children: [
-                      TextFormField(
-                        controller: _mobileModelController,
-                        decoration: const InputDecoration(
-                          labelText: 'Mobile Brand/Model',
-                          hintText: 'Samsung A54 / iPhone 13',
-                        ),
-                        validator: (value) =>
-                            value?.isEmpty ?? true ? 'Required' : null,
+                      Autocomplete<String>(
+                        optionsBuilder: (TextEditingValue textEditingValue) {
+                          if (textEditingValue.text.isEmpty) {
+                            return const Iterable<String>.empty();
+                          }
+                          final query = textEditingValue.text.toLowerCase();
+                          return AppConstants.mobileModels.where(
+                            (model) => model.toLowerCase().contains(query),
+                          );
+                        },
+                        onSelected: (String selection) {
+                          _mobileModelController.text = selection;
+                        },
+                        fieldViewBuilder: (context, controller, focusNode, onFieldSubmitted) {
+                          // Sync with our controller
+                          controller.text = _mobileModelController.text;
+                          controller.addListener(() {
+                            _mobileModelController.text = controller.text;
+                          });
+                          return TextFormField(
+                            controller: controller,
+                            focusNode: focusNode,
+                            decoration: const InputDecoration(
+                              labelText: 'Mobile Brand/Model',
+                              hintText: 'Type to search e.g. Samsung, iPhone...',
+                              prefixIcon: Icon(Icons.smartphone),
+                            ),
+                            validator: (value) =>
+                                value?.isEmpty ?? true ? 'Required' : null,
+                          );
+                        },
+                        optionsViewBuilder: (context, onSelected, options) {
+                          return Align(
+                            alignment: Alignment.topLeft,
+                            child: Material(
+                              color: Colors.transparent,
+                              elevation: 0,
+                              child: Container(
+                                margin: const EdgeInsets.only(top: 4),
+                                constraints: const BoxConstraints(maxHeight: 240, maxWidth: 340),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.92),
+                                  borderRadius: BorderRadius.circular(16),
+                                  border: Border.all(
+                                    color: Color(AppConstants.primaryColor).withValues(alpha: 0.3),
+                                    width: 1.2,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Color(AppConstants.primaryColor).withValues(alpha: 0.1),
+                                      blurRadius: 20,
+                                      spreadRadius: 2,
+                                    ),
+                                  ],
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: ListView.builder(
+                                    padding: const EdgeInsets.symmetric(vertical: 6),
+                                    shrinkWrap: true,
+                                    itemCount: options.length > 6 ? 6 : options.length,
+                                    itemBuilder: (context, index) {
+                                      final option = options.elementAt(index);
+                                      return ListTile(
+                                        dense: true,
+                                        leading: Icon(Icons.smartphone, size: 18, color: Color(AppConstants.primaryColor)),
+                                        title: Text(option, style: const TextStyle(fontSize: 14)),
+                                        onTap: () => onSelected(option),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        },
                       ),
                       const SizedBox(height: 16),
                       // Image Picker

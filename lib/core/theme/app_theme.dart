@@ -8,33 +8,32 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.light,
       primaryColor: Color(AppConstants.primaryColor),
-      scaffoldBackgroundColor: Colors.white,
+      scaffoldBackgroundColor: const Color(0xFFE8F0FF),
       fontFamily: GoogleFonts.poppins().fontFamily,
 
-      // App Bar Theme
+      // App Bar Theme - Transparent with blur effect
       appBarTheme: AppBarTheme(
-        backgroundColor: Colors.white,
-        elevation: 2,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         centerTitle: true,
         iconTheme: const IconThemeData(color: Color(AppConstants.textPrimary)),
         titleTextStyle: GoogleFonts.poppins(
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
+          fontSize: 21,
+          fontWeight: FontWeight.w700,
           color: Color(AppConstants.textPrimary),
+          letterSpacing: 0.5,
         ),
         toolbarTextStyle: GoogleFonts.poppins(
-          fontSize: 16,
+          fontSize: 17,
           color: Color(AppConstants.textPrimary),
         ),
-        shadowColor: Colors.black12,
       ),
 
       // Card Theme
       cardTheme: CardThemeData(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        elevation: 4,
-        shadowColor: Colors.black12,
-        color: Color(AppConstants.cardBgColor),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        elevation: 0,
+        color: Colors.white.withValues(alpha: 0.55),
       ),
 
       // Input Decoration Theme
@@ -72,38 +71,38 @@ class AppTheme {
           ),
         ),
         filled: true,
-        fillColor: Color(AppConstants.fillColor),
+        fillColor: Colors.white.withValues(alpha: 0.5),
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 14,
+          horizontal: 20,
+          vertical: 16,
         ),
         hintStyle: GoogleFonts.poppins(
           color: Color(AppConstants.textSecondary),
-          fontSize: 14,
+          fontSize: 15,
         ),
         labelStyle: GoogleFonts.poppins(
           color: Color(AppConstants.textPrimary),
-          fontSize: 14,
+          fontSize: 15,
         ),
         errorStyle: GoogleFonts.poppins(
           color: Color(AppConstants.errorColor),
-          fontSize: 12,
+          fontSize: 13,
         ),
       ),
 
-      // Elevated Button Theme
+      // Elevated Button Theme - Gradient style
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(20),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
           backgroundColor: Color(AppConstants.primaryColor),
           foregroundColor: Colors.white,
           elevation: 4,
-          shadowColor: Colors.black12,
+          shadowColor: Color(AppConstants.primaryColor).withValues(alpha: 0.3),
           textStyle: GoogleFonts.poppins(
-            fontSize: 16,
+            fontSize: 17,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -114,7 +113,7 @@ class AppTheme {
         style: TextButton.styleFrom(
           foregroundColor: Color(AppConstants.primaryColor),
           textStyle: GoogleFonts.poppins(
-            fontSize: 14,
+            fontSize: 15,
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -128,25 +127,25 @@ class AppTheme {
         ),
       ),
 
-      // Chip Theme
+      // Chip Theme - Glass style
       chipTheme: ChipThemeData(
-        backgroundColor: Color(AppConstants.fillColor),
+        backgroundColor: Colors.white.withValues(alpha: 0.55),
         selectedColor: Color(AppConstants.primaryColor),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: const BorderSide(
-            color: Color(AppConstants.primaryColor),
-            width: 1.5,
+          borderRadius: BorderRadius.circular(24),
+          side: BorderSide(
+            color: Color(AppConstants.primaryColor).withValues(alpha: 0.5),
+            width: 1.2,
           ),
         ),
         labelStyle: GoogleFonts.poppins(
-          fontSize: 13,
+          fontSize: 14,
           fontWeight: FontWeight.w500,
           color: Color(AppConstants.textPrimary),
         ),
         secondaryLabelStyle: GoogleFonts.poppins(
-          fontSize: 13,
+          fontSize: 14,
           fontWeight: FontWeight.w600,
           color: Colors.white,
         ),

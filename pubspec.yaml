@@ -74,6 +74,14 @@ dependencies:
   # Google Fonts (Poppins)
   google_fonts: ^6.2.1
 
+  # Bill Sharing (PNG + PDF + Print)
+  share_plus: ^7.2.2
+  pdf: ^3.10.8
+  printing: ^5.12.0
+
+  # Local Notifications
+  flutter_local_notifications: ^17.1.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import '../../core/utils/date_utils.dart';
+import '../core/services/notification_service.dart';
 import '../data/models/repair_job.dart';
 
 class RepairProvider extends ChangeNotifier {
@@ -30,6 +31,9 @@ class RepairProvider extends ChangeNotifier {
 
   Future<void> addJob(RepairJob job) async {
     await _box.put(job.id, job);
+    // Show notification for new job
+    await NotificationService()
+        .showNewJobNotification(job.customerName, job.mobileModel);
     notifyListeners();
   }
 
@@ -39,6 +43,9 @@ class RepairProvider extends ChangeNotifier {
       job.status = 'done';
       job.completedAt = DateTime.now();
       await job.save();
+      // Show notification for job completion
+      await NotificationService()
+          .showJobCompleteNotification(job.customerName, job.mobileModel);
       notifyListeners();
     }
   }
@@ -49,6 +56,8 @@ class RepairProvider extends ChangeNotifier {
       job.status = 'issue_found';
       job.extraIssueNote = note;
       await job.save();
+      // Show notification for issue found
+      await NotificationService().showIssueFoundNotification(note);
       notifyListeners();
     }
   }

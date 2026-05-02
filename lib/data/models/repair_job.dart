@@ -32,18 +32,21 @@ class RepairJob extends HiveObject {
   late String? imagePath; // Local file path to device photo
 
   @HiveField(9)
-  late DateTime receivedAt;
+  late String? customerImagePath; // Local file path to customer photo
 
   @HiveField(10)
-  late DateTime? completedAt;
+  late DateTime receivedAt;
 
   @HiveField(11)
-  late String status; // "pending" | "done" | "issue_found"
+  late DateTime? completedAt;
 
   @HiveField(12)
-  late String? extraIssueNote; // If technician finds more problems
+  late String status; // "pending" | "done" | "issue_found"
 
   @HiveField(13)
+  late String? extraIssueNote; // If technician finds more problems
+
+  @HiveField(14)
   late List<String> issueTags; // Quick-select tags used
 
   RepairJob({
@@ -56,6 +59,7 @@ class RepairJob extends HiveObject {
     required this.repairPrice,
     required this.estimatedTime,
     this.imagePath,
+    this.customerImagePath,
     required this.receivedAt,
     this.completedAt,
     required this.status,

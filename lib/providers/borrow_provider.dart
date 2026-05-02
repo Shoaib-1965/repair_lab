@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
+import '../core/services/notification_service.dart';
 import '../data/models/borrow_item.dart';
 
 class BorrowProvider extends ChangeNotifier {
@@ -19,6 +20,9 @@ class BorrowProvider extends ChangeNotifier {
 
   Future<void> addItem(BorrowItem item) async {
     await _box.put(item.id, item);
+    // Show notification for borrowed part
+    await NotificationService()
+        .showBorrowItemNotification(item.partName, item.shopName);
     notifyListeners();
   }
 
