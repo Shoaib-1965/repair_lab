@@ -1,0 +1,859 @@
+# JTC REPAIR LAB — FLUTTER APP
+## Complete AI Agent Build Prompt Document
+
+---
+
+> **HOW TO USE THIS DOCUMENT**
+> Upload this entire file to your AI coding agent (Cursor, Claude, Windsurf, etc.) and say:
+> *"Build this Flutter app exactly as described in this document. Follow every section in order."*
+
+---
+
+## 1. PROJECT OVERVIEW
+
+Build a complete, production-ready **Flutter mobile application** called **JTC Repair Lab**.
+
+- **App Name:** JTC Repair Lab
+- **Platform:** Android (primary), iOS (secondary)
+- **Backend:** Zero server. 100% offline. All data stored locally on device.
+- **Target Users:** Mobile phone repair shop staff (Usman & Saad)
+- **Language:** English UI, Urdu-friendly data entry support (Unicode safe)
+
+---
+
+## 2. TECH STACK — MANDATORY
+
+Use **exactly** these packages. Do not substitute.
+
+```yaml
+# pubspec.yaml dependencies
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Local Database (lightweight, pure Dart, no code generation needed)
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+
+  # Simple key-value for app settings/preferences
+  shared_preferences: ^2.2.3
+
+  # State Management (lightweight)
+  provider: ^6.1.2
+
+  # Image picking from camera or gallery
+  image_picker: ^1.1.2
+
+  # Image display/caching
+  cached_network_image: ^3.3.1
+
+  # WhatsApp deep-link messaging
+  url_launcher: ^6.3.0
+
+  # Bluetooth thermal printer (portable wireless printer)
+  bluetooth_print: ^4.3.0
+
+  # UUID generation for unique repair job IDs
+  uuid: ^4.4.2
+
+  # Date formatting
+  intl: ^0.19.0
+
+  # Path provider for storing images locally
+  path_provider: ^2.1.3
+
+  # Permission handler
+  permission_handler: ^11.3.1
+
+  # Dart file operations
+  path: ^1.9.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  hive_generator: ^2.0.1
+  build_runner: ^2.4.9
+  flutter_lints: ^4.0.0
+```
+
+**Flutter SDK:** Minimum 3.19.0. Target Dart 3.3+.
+
+---
+
+## 3. APP ARCHITECTURE
+
+```
+lib/
+├── main.dart
+├── app.dart                          # MaterialApp root, theme, routes
+├── core/
+│   ├── theme/
+│   │   └── app_theme.dart            # White theme, rounded UI tokens
+│   ├── constants/
+│   │   └── app_constants.dart        # Lab info, tag presets, strings
+│   └── utils/
+│       ├── date_utils.dart
+│       └── whatsapp_utils.dart
+├── data/
+│   ├── models/
+│   │   ├── repair_job.dart           # HiveObject
+│   │   ├── repair_job.g.dart         # Generated
+│   │   ├── borrow_item.dart          # HiveObject
+│   │   └── borrow_item.g.dart        # Generated
+│   └── repositories/
+│       ├── repair_repository.dart
+│       └── borrow_repository.dart
+├── providers/
+│   ├── repair_provider.dart
+│   └── borrow_provider.dart
+└── ui/
+    ├── screens/
+    │   ├── splash/
+    │   │   └── splash_screen.dart
+    │   ├── dashboard/
+    │   │   └── dashboard_screen.dart  # Main page
+    │   ├── new_job/
+    │   │   └── new_job_screen.dart    # Add repair job form
+    │   ├── job_detail/
+    │   │   └── job_detail_screen.dart
+    │   ├── print_bill/
+    │   │   └── print_bill_screen.dart
+    │   └── borrow_list/
+    │       └── borrow_list_screen.dart
+    └── widgets/
+        ├── job_card.dart
+        ├── tag_chip.dart
+        ├── status_badge.dart
+        ├── section_header.dart
+        └── rounded_button.dart
+```
+
+---
+
+## 4. DATA MODELS
+
+### 4.1 RepairJob (Hive Box: `"repair_jobs"`)
+
+```dart
+@HiveType(typeId: 0)
+class RepairJob extends HiveObject {
+  @HiveField(0)  String id;               // UUID v4
+  @HiveField(1)  String customerName;
+  @HiveField(2)  String customerPhone;    // e.g. 03001234567
+  @HiveField(3)  String customerCNIC;     // e.g. 35201-1234567-1
+  @HiveField(4)  String mobileModel;     // Device brand/model
+  @HiveField(5)  String issueDescription; // Free text + selected tags
+  @HiveField(6)  double repairPrice;
+  @HiveField(7)  String estimatedTime;   // e.g. "2 Hours", "Tomorrow 5pm"
+  @HiveField(8)  String? imagePath;      // Local file path to device photo
+  @HiveField(9)  DateTime receivedAt;
+  @HiveField(10) DateTime? completedAt;
+  @HiveField(11) String status;          // "pending" | "done" | "issue_found"
+  @HiveField(12) String? extraIssueNote; // If technician finds more problems
+  @HiveField(13) List<String> issueTags; // Quick-select tags used
+}
+```
+
+### 4.2 BorrowItem (Hive Box: `"borrow_items"`)
+
+```dart
+@HiveType(typeId: 1)
+class BorrowItem extends HiveObject {
+  @HiveField(0) String id;           // UUID v4
+  @HiveField(1) String partName;     // e.g. "iPhone 13 Screen"
+  @HiveField(2) String shopName;     // Where borrowed from
+  @HiveField(3) String? shopPhone;
+  @HiveField(4) int quantity;
+  @HiveField(5) DateTime borrowedAt;
+  @HiveField(6) bool returned;       // For manual mark-returned
+}
+```
+
+---
+
+## 5. HIVE INITIALIZATION
+
+In `main.dart`:
+
+```dart
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+  Hive.registerAdapter(RepairJobAdapter());
+  Hive.registerAdapter(BorrowItemAdapter());
+  await Hive.openBox<RepairJob>('repair_jobs');
+  await Hive.openBox<BorrowItem>('borrow_items');
+  runApp(const JTCApp());
+}
+```
+
+---
+
+## 6. APP THEME — MANDATORY DESIGN RULES
+
+### Design Language
+- **Primary color:** Pure white `#FFFFFF` background throughout
+- **Accent color:** Deep blue `#1A73E8` for buttons, active states, badges
+- **Secondary accent:** Soft teal `#00B4D8` for status chips
+- **Success color:** `#2ECC71`
+- **Warning color:** `#F39C12`
+- **Error color:** `#E74C3C`
+- **Text primary:** `#1A1A2E` (near black)
+- **Text secondary:** `#6B7280` (gray)
+- **Card background:** `#F8FAFF` (barely blue-white)
+- **Shadow:** Soft, elevation 2–6, `Colors.black12`
+
+### Typography
+- **Font:** `Poppins` (add to pubspec assets from Google Fonts)
+  ```yaml
+  google_fonts: ^6.2.1
+  ```
+- Headings: `Poppins SemiBold`
+- Body: `Poppins Regular`
+- Labels: `Poppins Medium`
+
+### Shape — ALL elements must use rounded corners
+```dart
+// Global theme shape
+cardTheme: CardTheme(
+  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+  elevation: 4,
+  shadowColor: Colors.black12,
+  color: Color(0xFFF8FAFF),
+),
+inputDecorationTheme: InputDecorationTheme(
+  border: OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+  filled: true,
+  fillColor: Color(0xFFF0F4FF),
+  contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+),
+elevatedButtonTheme: ElevatedButtonThemeData(
+  style: ElevatedButton.styleFrom(
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+    backgroundColor: Color(0xFF1A73E8),
+    foregroundColor: Colors.white,
+  ),
+),
+```
+
+---
+
+## 7. SCREEN-BY-SCREEN SPECIFICATION
+
+---
+
+### 7.1 SPLASH SCREEN
+
+- Show app logo (use a wrench + mobile icon SVG or asset)
+- App name: **JTC Repair Lab** in large `Poppins SemiBold`
+- Tagline: *"Professional Mobile Repair Management"*
+- Below tagline: *"By Usman & Saad"*
+- Background: White. Logo in blue accent color.
+- Duration: 2 seconds → navigate to Dashboard
+- No navigation bar on this screen.
+
+---
+
+### 7.2 DASHBOARD SCREEN (Main Page)
+
+This is the app's home. It must be visually rich and informative at a glance.
+
+#### AppBar
+- Title: **JTC Repair Lab**
+- Subtitle row: Today's date formatted as `Wednesday, 30 April 2025`
+- Actions:
+  - `+` FAB (Floating Action Button) → opens New Job Screen
+  - Borrow List icon button (top-right) → opens Borrow List Screen
+
+#### Stats Summary Row (horizontal cards)
+Display 3 rounded stat cards in a row:
+1. **Pending** — count of jobs with `status == "pending"` (orange badge)
+2. **Done Today** — count of jobs completed today (green badge)
+3. **Total Jobs** — all-time repair job count (blue badge)
+
+#### Filter Chips Row (horizontal scrollable)
+Chips: `All` | `Pending` | `Done` | `Issue Found`
+Active chip: filled blue. Inactive: outlined.
+
+#### Job Cards List
+Each card shows:
+- Device model name (bold, 16sp)
+- Customer name + phone number
+- Issue tags (shown as small colored chips, max 3 visible)
+- Price: shown with `Rs.` prefix
+- Estimated time
+- Status badge: `PENDING` (orange) / `DONE` (green) / `ISSUE FOUND` (red)
+- Time received: shown as "2 hrs ago" or "Yesterday"
+- If an image was taken: show small thumbnail (40x40 rounded)
+
+Card actions (shown as icon buttons at bottom of each card):
+- ✅ **Done button** — marks job as complete, triggers WhatsApp message
+- ⚠️ **Report Issue button** — opens bottom sheet to enter extra issue note + sends WhatsApp
+- 🖨️ **Print Bill button** — navigates to Print Bill Screen
+- 👁️ **View Detail button** — opens Job Detail Screen
+
+Cards must be swipe-dismissible with confirmation dialog for delete.
+
+#### Empty State
+If no jobs exist, show a centered illustration (wrench icon + text):
+*"No repair jobs yet. Tap + to add your first job."*
+
+---
+
+### 7.3 NEW JOB SCREEN (Add Repair)
+
+Full-form screen with smooth scrolling. All fields inside rounded cards.
+
+#### Section 1: Customer Information Card
+Fields:
+- **Customer Name** — text field, required
+- **Phone Number** — numeric keyboard, required, hint: `03001234567`
+- **CNIC** — text with format hint `35201-1234567-1`, optional
+
+#### Section 2: Device Information Card
+Fields:
+- **Mobile Brand/Model** — text field, required, hint: `Samsung A54 / iPhone 13`
+- **Device Photo** — image picker widget:
+  - Large dashed rounded container (120x120)
+  - Center: camera icon + text "Tap to add photo"
+  - Options: Camera | Gallery (show bottom sheet on tap)
+  - After selection: show preview with ✕ remove button
+
+#### Section 3: Issue Description Card
+**Quick Issue Tags** (pre-built tags, user can multi-select):
+Display as wrap of selectable chips. Pre-defined tags:
+```
+Screen Broken | Battery Issue | Charging Port | Speaker Issue
+Mic Issue | Back Glass | Water Damage | Software Issue
+Hanging/Lag | Camera Issue | Touch Issue | Power Button
+Volume Button | Sim Not Working | Network Issue | Overheating
+```
+- Selected chips turn solid blue
+- User can also type custom issue in text area below tags
+- Both selected tags + custom text are concatenated and saved
+
+#### Section 4: Repair Details Card
+Fields:
+- **Estimated Price** — numeric keyboard, `Rs.` prefix, required
+- **Estimated Time** — text field with quick-select chips below:
+  ```
+  1 Hour | 2 Hours | 3 Hours | Same Day | Tomorrow | 2 Days | 1 Week
+  ```
+  Tapping a chip fills the field. User can type custom time.
+
+#### Save Button
+Large, full-width, rounded blue button: **"Save & Generate Bill"**
+
+On save:
+1. Validate required fields (show inline errors)
+2. Save RepairJob to Hive
+3. Navigate to Print Bill Screen automatically
+4. Show success snackbar: *"Job saved successfully!"*
+
+---
+
+### 7.4 JOB DETAIL SCREEN
+
+Read-only detailed view of a single repair job.
+
+Layout (cards):
+- **Customer Info Card**: Name, Phone (tappable to call), CNIC
+- **Device Card**: Model, issue tags shown as chips, full issue description, device photo (full width if exists)
+- **Repair Info Card**: Price, estimated time, received date/time, status
+- **Timeline Card**: Received → (In Progress) → Completed (show dates)
+- If `extraIssueNote` is not null: show **"Additional Issue Found"** red card with the note
+
+Bottom action bar with buttons:
+- **Mark Done** (green) — only if status is pending
+- **Print Bill** (blue)
+- **WhatsApp** (green with WhatsApp icon)
+
+---
+
+### 7.5 PRINT BILL SCREEN
+
+This screen renders the bill layout that will be sent to a Bluetooth thermal printer.
+
+#### Bill Preview (white card, centered, max width 300px — mimics thermal receipt)
+
+```
+━━━━━━━━━━━━━━━━━━━━━
+       JTC LAB
+   Mobile Repair Shop
+━━━━━━━━━━━━━━━━━━━━━
+Date: 30-Apr-2025
+Bill No: JTC-001
+
+Customer: Ahmed Ali
+Phone: 0300-1234567
+CNIC: 35201-1234567-1
+━━━━━━━━━━━━━━━━━━━━━
+Device: Samsung A54
+Issue: Screen Broken,
+       Charging Port
+━━━━━━━━━━━━━━━━━━━━━
+Estimate: Rs. 2500
+Time: 2 Hours
+Received: 30-Apr 02:30pm
+━━━━━━━━━━━━━━━━━━━━━
+        NOTES
+• Device will be checked
+  thoroughly before repair
+• Customer is responsible
+  for data backup
+• Warranty: 15 days on
+  replaced parts only
+━━━━━━━━━━━━━━━━━━━━━
+Usman: 0345-7599995
+Saad:  0345-7701965
+━━━━━━━━━━━━━━━━━━━━━
+    Thank You! 
+```
+
+#### Bluetooth Print Button
+- Large blue rounded button: **"🖨️ Print via Bluetooth"**
+- Tapping it:
+  1. Requests Bluetooth permission
+  2. Shows device scanner bottom sheet (list of paired/discovered BT devices)
+  3. User selects printer
+  4. Sends ESC/POS formatted content via `bluetooth_print` package
+  5. Shows success/error snackbar
+
+#### ESC/POS Content to send:
+Use `bluetooth_print` package `LineText` API:
+```dart
+List<LineText> lines = [
+  LineText(type: LineText.TYPE_TEXT, content: 'JTC LAB',
+      weight: 1, align: LineText.ALIGN_CENTER, linefeed: 1),
+  LineText(type: LineText.TYPE_TEXT, content: 'Mobile Repair Shop',
+      align: LineText.ALIGN_CENTER, linefeed: 1),
+  // ... all bill fields
+  LineText(linefeed: 1),
+  LineText(linefeed: 1),
+];
+```
+
+#### Share as Image (fallback)
+If no BT printer available: **"📤 Share as Screenshot"** button
+- Captures bill card widget as PNG using `RepaintBoundary`
+- Opens native share sheet
+
+---
+
+### 7.6 BORROW LIST SCREEN
+
+Simple list for tracking parts borrowed from market shops **today only**.
+
+#### AppBar
+- Title: **"Borrow List — Today"**
+- Subtitle: Current date
+- Action: **Reset All** button (confirm dialog) — clears all borrow items for the day
+
+#### Add Borrow Item — Bottom Sheet (triggered by FAB)
+Fields:
+- Part Name — text, required (e.g. `iPhone 13 Pro Screen`)
+- Shop Name — text, required (e.g. `Ali Electronics`)
+- Shop Phone — optional
+- Quantity — number stepper (−/+), default 1
+
+Save → adds to Hive borrow box and refreshes list.
+
+#### Borrow List
+Each item card shows:
+- Part name (bold)
+- Shop name + phone (tappable if phone present)
+- Quantity badge
+- Time borrowed (e.g. "10:30 AM")
+- **Mark Returned** toggle (strikethrough on returned items)
+- Delete swipe gesture
+
+#### Auto-Reset Logic
+On app start, check if `lastBorrowDate` (stored in SharedPreferences) is not today:
+```dart
+final prefs = await SharedPreferences.getInstance();
+final lastDate = prefs.getString('lastBorrowDate') ?? '';
+final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+if (lastDate != today) {
+  // Clear all borrow items from Hive box
+  await Hive.box<BorrowItem>('borrow_items').clear();
+  await prefs.setString('lastBorrowDate', today);
+}
+```
+
+---
+
+## 8. WHATSAPP INTEGRATION
+
+### Package used: `url_launcher`
+
+### Utility function in `lib/core/utils/whatsapp_utils.dart`:
+
+```dart
+import 'package:url_launcher/url_launcher.dart';
+
+class WhatsAppUtils {
+
+  // Format: 92XXXXXXXXXX (Pakistan country code)
+  static String _formatPKNumber(String phone) {
+    phone = phone.replaceAll(RegExp(r'[^0-9]'), '');
+    if (phone.startsWith('0')) phone = '92${phone.substring(1)}';
+    return phone;
+  }
+
+  static Future<void> sendRepairDoneMessage({
+    required String customerPhone,
+    required String customerName,
+    required String deviceModel,
+  }) async {
+    final number = _formatPKNumber(customerPhone);
+    final message = Uri.encodeComponent(
+      'Assalam o Alaikum $customerName! ✅\n\n'
+      'Your *$deviceModel* is ready for pickup.\n\n'
+      'Please visit JTC Lab at your convenience.\n\n'
+      'For queries:\n'
+      '📞 Usman: 0345-7599995\n'
+      '📞 Saad: 0345-7701965\n\n'
+      'Thank you for choosing JTC Lab! 🙏'
+    );
+    final uri = Uri.parse('https://wa.me/$number?text=$message');
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  static Future<void> sendIssueFoundMessage({
+    required String customerPhone,
+    required String customerName,
+    required String deviceModel,
+    required String issueNote,
+  }) async {
+    final number = _formatPKNumber(customerPhone);
+    final message = Uri.encodeComponent(
+      'Assalam o Alaikum $customerName!\n\n'
+      'During repair of your *$deviceModel*, we found an additional issue:\n\n'
+      '⚠️ *$issueNote*\n\n'
+      'Please contact us to discuss:\n'
+      '📞 Usman: 0345-7599995\n'
+      '📞 Saad: 0345-7701965\n\n'
+      'JTC Repair Lab'
+    );
+    final uri = Uri.parse('https://wa.me/$number?text=$message');
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+}
+```
+
+### When to trigger WhatsApp:
+1. **Mark Done** → auto-open WhatsApp with "ready for pickup" message
+2. **Report Issue** → opens bottom sheet for issue note → after save, opens WhatsApp with issue message
+3. **Job Detail Screen** → manual WhatsApp button always available
+
+---
+
+## 9. NAVIGATION FLOW
+
+```
+SplashScreen (2s)
+    │
+    ▼
+DashboardScreen (Home)
+    ├── FAB (+) ──────────────────► NewJobScreen
+    │                                    │
+    │                                    ▼
+    │                              PrintBillScreen (auto after save)
+    │
+    ├── Job Card → View ──────────► JobDetailScreen
+    │                                    │
+    │                                    ├──► PrintBillScreen
+    │                                    └──► WhatsApp (external)
+    │
+    ├── Job Card → Print ────────► PrintBillScreen
+    │
+    ├── Job Card → Done ─────────► Confirm Dialog → WhatsApp
+    │
+    ├── Job Card → Issue ─────────► BottomSheet (note input) → WhatsApp
+    │
+    └── AppBar Borrow Icon ──────► BorrowListScreen
+```
+
+Use `Navigator.push` with smooth `PageRouteBuilder` slide transitions (slide from right).
+
+---
+
+## 10. PROVIDERS
+
+### RepairProvider
+```dart
+class RepairProvider extends ChangeNotifier {
+  final Box<RepairJob> _box = Hive.box<RepairJob>('repair_jobs');
+
+  List<RepairJob> get allJobs => _box.values.toList()
+    ..sort((a, b) => b.receivedAt.compareTo(a.receivedAt));
+
+  List<RepairJob> get pendingJobs =>
+    allJobs.where((j) => j.status == 'pending').toList();
+
+  int get totalCount => _box.length;
+  int get pendingCount => pendingJobs.length;
+  int get doneTodayCount => allJobs.where((j) =>
+    j.status == 'done' &&
+    j.completedAt != null &&
+    DateUtils.isSameDay(j.completedAt!, DateTime.now())).length;
+
+  Future<void> addJob(RepairJob job) async {
+    await _box.put(job.id, job);
+    notifyListeners();
+  }
+
+  Future<void> markDone(String id) async {
+    final job = _box.get(id);
+    if (job != null) {
+      job.status = 'done';
+      job.completedAt = DateTime.now();
+      await job.save();
+      notifyListeners();
+    }
+  }
+
+  Future<void> reportIssue(String id, String note) async {
+    final job = _box.get(id);
+    if (job != null) {
+      job.status = 'issue_found';
+      job.extraIssueNote = note;
+      await job.save();
+      notifyListeners();
+    }
+  }
+
+  Future<void> deleteJob(String id) async {
+    await _box.delete(id);
+    notifyListeners();
+  }
+
+  List<RepairJob> filterByStatus(String? status) {
+    if (status == null || status == 'all') return allJobs;
+    return allJobs.where((j) => j.status == status).toList();
+  }
+}
+```
+
+### BorrowProvider
+```dart
+class BorrowProvider extends ChangeNotifier {
+  final Box<BorrowItem> _box = Hive.box<BorrowItem>('borrow_items');
+
+  List<BorrowItem> get items => _box.values.toList()
+    ..sort((a, b) => b.borrowedAt.compareTo(a.borrowedAt));
+
+  Future<void> addItem(BorrowItem item) async {
+    await _box.put(item.id, item);
+    notifyListeners();
+  }
+
+  Future<void> toggleReturned(String id) async {
+    final item = _box.get(id);
+    if (item != null) {
+      item.returned = !item.returned;
+      await item.save();
+      notifyListeners();
+    }
+  }
+
+  Future<void> deleteItem(String id) async {
+    await _box.delete(id);
+    notifyListeners();
+  }
+
+  Future<void> clearAll() async {
+    await _box.clear();
+    notifyListeners();
+  }
+}
+```
+
+---
+
+## 11. CONSTANTS FILE
+
+### `lib/core/constants/app_constants.dart`
+
+```dart
+class AppConstants {
+  // Lab Info
+  static const String labName = 'JTC Lab';
+  static const String owner1Name = 'Usman';
+  static const String owner1Phone = '0345-7599995';
+  static const String owner2Name = 'Saad';
+  static const String owner2Phone = '0345-7701965';
+  static const String labTagline = 'Professional Mobile Repair';
+
+  // Bill Footer Notes (3 lines only — as per requirement)
+  static const List<String> billNotes = [
+    '• Device checked thoroughly before and after repair.',
+    '• Customer responsible for personal data backup.',
+    '• 15 days warranty on replaced parts only.',
+  ];
+
+  // Pre-built Issue Tags
+  static const List<String> issueTags = [
+    'Screen Broken', 'Battery Issue', 'Charging Port', 'Speaker Issue',
+    'Mic Issue', 'Back Glass', 'Water Damage', 'Software Issue',
+    'Hanging / Lag', 'Camera Issue', 'Touch Issue', 'Power Button',
+    'Volume Button', 'SIM Not Working', 'Network Issue', 'Overheating',
+    'Face ID / Fingerprint', 'Headphone Jack', 'Vibration Issue', 'WiFi Issue',
+  ];
+
+  // Estimated Time Quick-Select
+  static const List<String> timeOptions = [
+    '1 Hour', '2 Hours', '3 Hours', 'Same Day',
+    'Tomorrow', '2 Days', '1 Week',
+  ];
+}
+```
+
+---
+
+## 12. PERMISSIONS — AndroidManifest.xml
+
+Add inside `<manifest>`:
+```xml
+<uses-permission android:name="android.permission.BLUETOOTH"/>
+<uses-permission android:name="android.permission.BLUETOOTH_SCAN"/>
+<uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
+<uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+<uses-permission android:name="android.permission.CAMERA"/>
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+<uses-permission android:name="android.permission.INTERNET"/>
+```
+
+Add `android:requestLegacyExternalStorage="true"` to `<application>` tag.
+
+---
+
+## 13. iOS — Info.plist additions
+
+```xml
+<key>NSCameraUsageDescription</key>
+<string>JTC Lab needs camera to photograph customer devices</string>
+<key>NSPhotoLibraryUsageDescription</key>
+<string>JTC Lab needs gallery access to select device photos</string>
+<key>NSBluetoothAlwaysUsageDescription</key>
+<string>JTC Lab uses Bluetooth to connect to the thermal printer</string>
+<key>NSBluetoothPeripheralUsageDescription</key>
+<string>JTC Lab uses Bluetooth to print repair bills</string>
+<key>LSApplicationQueriesSchemes</key>
+<array>
+  <string>whatsapp</string>
+</array>
+```
+
+---
+
+## 14. UI MICRO-INTERACTIONS & POLISH
+
+Implement all of these for a premium feel:
+
+1. **AnimatedSwitcher** on status badge when job status changes
+2. **Hero animation** on job card image → job detail screen photo
+3. **Slide-in animation** on dashboard job cards (staggered, 50ms delay per card)
+4. **Ripple effect** on all tappable elements (default Flutter behavior, ensure it works)
+5. **SnackBar** with rounded corners for all success/error messages
+6. **Shimmer loading** placeholder while Hive loads on first launch
+7. **Pull-to-refresh** on dashboard job list (refreshes provider)
+8. **Haptic feedback** on Done button (use `HapticFeedback.mediumImpact()`)
+9. **Confirmation dialogs** for: Delete job, Mark Done, Reset borrow list
+10. **Bottom Sheet** keyboard avoidance (use `isScrollControlled: true`)
+
+---
+
+## 15. ERROR HANDLING
+
+- All Hive operations wrapped in try/catch
+- Permission denied → show a dialog explaining what permission is needed and why
+- Bluetooth not available → show info snackbar, disable print button gracefully
+- WhatsApp not installed → show snackbar: *"WhatsApp is not installed on this device"*
+- Image pick cancelled → do nothing silently
+- Empty form submission → highlight required fields with red border + error text
+
+---
+
+## 16. PERFORMANCE REQUIREMENTS
+
+- App cold launch < 2 seconds on mid-range Android (Snapdragon 660+)
+- Hive read/write must be async, never block the UI thread
+- Images must be stored as compressed JPEG (quality 70%) to save space
+- Max image size: 800x800px (downscale before saving)
+- Lazy load job cards in list using `ListView.builder`
+- Use `const` constructors everywhere possible
+
+---
+
+## 17. ADDITIONAL FEATURES (Add by AI Agent)
+
+The following features were added to make the app complete and professional:
+
+1. **Bill Auto-numbering**: Sequential bill numbers stored in SharedPreferences (`JTC-001`, `JTC-002`...)
+2. **Search Bar on Dashboard**: Real-time filter by customer name, phone, or device model
+3. **Dark Mode Toggle**: Optional, stored in SharedPreferences (default OFF — white theme)
+4. **Job Counter Badge**: App launcher badge showing pending job count (if supported)
+5. **Data Export**: Export all repair jobs as CSV to device storage (share via Files)
+6. **In-app Call**: Tapping customer phone number opens dialer (use `url_launcher` with `tel:`)
+7. **Swipe Actions on Cards**: Left swipe = Delete (red), Right swipe = Mark Done (green)
+
+---
+
+## 18. FOLDER NAMING & FILE CONVENTIONS
+
+- All file names: `snake_case.dart`
+- All class names: `PascalCase`
+- All constants: `SCREAMING_SNAKE_CASE` or `camelCase` inside class
+- All widget keys: use string keys for important widgets for testing
+- No hardcoded strings outside `AppConstants` except debug prints
+- No `print()` in production code — use `debugPrint()`
+
+---
+
+## 19. FINAL CHECKLIST FOR AI AGENT
+
+Before declaring the app complete, verify:
+
+- [ ] App runs on Android without crash on cold launch
+- [ ] Hive data persists after app restart (jobs still visible)
+- [ ] Adding a new job works with image + all fields
+- [ ] Marking job done sends WhatsApp to correct number
+- [ ] Reporting issue updates status and sends WhatsApp
+- [ ] Print bill screen renders correctly and BT scan works
+- [ ] Borrow list resets automatically next day
+- [ ] All screens have back navigation
+- [ ] No overflow errors on any screen (test with long text inputs)
+- [ ] All rounded corners, white background, Poppins font applied
+- [ ] App does not require internet connection at any point
+- [ ] Permissions are requested gracefully at the right time (not all on launch)
+
+---
+
+## 20. LAB BRANDING REFERENCE
+
+Use these details exactly everywhere (bill, splash, about, WhatsApp messages):
+
+| Field | Value |
+|-------|-------|
+| Lab Name | JTC Lab |
+| Full Name | JTC Repair Lab |
+| Contact 1 | Usman — 0345-7599995 |
+| Contact 2 | Saad — 0345-7701965 |
+| Tagline | Professional Mobile Repair |
+| Currency | Rs. (Pakistani Rupees) |
+| Country Code | +92 (Pakistan) |
+| Bill Prefix | JTC- |
+
+---
+
+*End of JTC Repair Lab Build Specification — v1.0*
+*Prepared for AI Agent Code Generation*
