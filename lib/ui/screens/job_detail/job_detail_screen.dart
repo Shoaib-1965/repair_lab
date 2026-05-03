@@ -170,7 +170,7 @@ class JobDetailScreen extends StatelessWidget {
           const SizedBox(height: 4),
           Text(value, style: Theme.of(context).textTheme.bodyMedium, maxLines: 2, overflow: TextOverflow.ellipsis),
         ])),
-        ?widget,
+        if (widget != null) widget,
       ]),
     );
   }
