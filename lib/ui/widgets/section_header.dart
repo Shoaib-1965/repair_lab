@@ -23,7 +23,7 @@ class SectionHeader extends StatelessWidget {
             color: Color(AppConstants.textPrimary),
           ),
         ),
-        ?trailing,
+        if (trailing != null) trailing,
       ],
     );
   }
