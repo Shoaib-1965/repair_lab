@@ -54,7 +54,7 @@ dependencies:
   url_launcher: ^6.3.0
 
   # Bluetooth Thermal Printer
-  bluetooth_print: ^4.3.0
+  print_bluetooth_thermal: ^1.1.9
 
   # UUID Generation
   uuid: ^4.4.2
