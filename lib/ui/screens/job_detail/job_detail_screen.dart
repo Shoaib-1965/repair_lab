@@ -65,9 +65,42 @@ class JobDetailScreen extends StatelessWidget {
 
   Widget _buildDevicePhoto(BuildContext context, RepairJob job) {
     if (job.imagePath != null && File(job.imagePath!).existsSync()) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(24),
-        child: Image.file(File(job.imagePath!), width: double.infinity, height: 200, fit: BoxFit.cover),
+      return GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => Scaffold(
+                backgroundColor: Colors.black,
+                appBar: AppBar(
+                  backgroundColor: Colors.black,
+                  iconTheme: const IconThemeData(color: Colors.white),
+                  actions: [
+                    IconButton(
+                      icon: const Icon(Icons.close, color: Colors.white),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+                body: Center(
+                  child: InteractiveViewer(
+                    child: Hero(
+                      tag: 'image_${job.id}',
+                      child: Image.file(File(job.imagePath!)),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+        child: Hero(
+          tag: 'image_${job.id}',
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: Image.file(File(job.imagePath!), width: double.infinity, height: 200, fit: BoxFit.cover),
+          ),
+        ),
       );
     }
     return GlassCard(
@@ -110,9 +143,11 @@ class JobDetailScreen extends StatelessWidget {
     return GlassCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text('REPAIR INFORMATION', style: Theme.of(context).textTheme.titleLarge?.copyWith(letterSpacing: 1.2, fontSize: 14)),
       const SizedBox(height: 12),
-      _buildDetailRow(context, 'Estimated Price', 'Rs. ${job.repairPrice.toStringAsFixed(0)}', Icons.currency_rupee),
+      _buildDetailRow(context, 'Estimated Price', 'PKR ${job.repairPrice.toStringAsFixed(0)}', Icons.currency_rupee),
       const SizedBox(height: 12),
       _buildDetailRow(context, 'Estimated Time', job.estimatedTime, Icons.schedule),
+      const SizedBox(height: 12),
+      _buildDetailRow(context, 'Received At', AppDateUtils.formatDateTimeShort(job.receivedAt), Icons.event),
       const SizedBox(height: 12),
       _buildDetailRow(context, 'Status', job.status.replaceAll('_', ' ').toUpperCase(), Icons.info, widget: StatusBadge(status: job.status)),
     ]));
@@ -128,16 +163,21 @@ class JobDetailScreen extends StatelessWidget {
   }
 
   Widget _buildIssueCard(BuildContext context, RepairJob job) {
-    return GlassCard(
-      glassColor: Color(AppConstants.errorColor).withValues(alpha: 0.15),
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFF3F3),
+        borderRadius: BorderRadius.circular(16),
+        border: const Border(left: BorderSide(color: Color(0xFFE74C3C), width: 4)),
+      ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
-          Icon(Icons.warning_rounded, color: Color(AppConstants.errorColor)),
+          const Icon(Icons.warning_rounded, color: Color(0xFFE74C3C)),
           const SizedBox(width: 8),
-          Text('Additional Issue Found', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: Color(AppConstants.errorColor))),
+          Text('Additional Issue Found', style: Theme.of(context).textTheme.titleMedium?.copyWith(color: const Color(0xFFB71C1C), fontWeight: FontWeight.w700)),
         ]),
         const SizedBox(height: 12),
-        Text(job.extraIssueNote!, style: Theme.of(context).textTheme.bodyMedium),
+        Text(job.extraIssueNote!, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: const Color(0xFF1A1A2E))),
       ]),
     );
   }
@@ -148,6 +188,22 @@ class JobDetailScreen extends StatelessWidget {
         GradientButton(label: 'Mark as Done ✅', onPressed: () => _markAsDone(context, job)),
         const SizedBox(height: 12),
         GlassButton(label: 'Report Issue ⚠️', onPressed: () => _reportIssue(context, job)),
+      ]);
+    } else if (job.status == 'issue_found') {
+      return Column(children: [
+        GradientButton(label: 'Mark as Done ✅', onPressed: () => _markAsDone(context, job)),
+        const SizedBox(height: 12),
+        GlassButton(label: 'Mark Pending ⏳', onPressed: () => _markPending(context, job)),
+      ]);
+    } else if (job.status == 'done') {
+      return Column(children: [
+        GlassButton(label: 'Mark Pending ⏳', onPressed: () => _markPending(context, job)),
+        const SizedBox(height: 12),
+        GradientButton(label: 'Print Bill 🖨️', onPressed: () => Navigator.of(context).pushNamed('/print-bill', arguments: job)),
+        const SizedBox(height: 12),
+        GlassButton(label: 'Send WhatsApp 💬', onPressed: () async {
+          await WhatsAppUtils.sendRepairDoneMessage(customerPhone: job.customerPhone, customerName: job.customerName, deviceModel: job.mobileModel, price: job.repairPrice);
+        }),
       ]);
     }
     return Column(children: [
@@ -230,6 +286,33 @@ class JobDetailScreen extends StatelessWidget {
         const SizedBox(height: 16),
       ]))),
     ));
+  }
+
+  void _markPending(BuildContext context, RepairJob job) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Move to Pending?'),
+        content: const Text('This will reset the job status to pending.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await context.read<RepairProvider>().markPending(job.id);
+              if (context.mounted) Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Color(AppConstants.warningColor),
+            ),
+            child: const Text('Confirm'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _confirmDelete(BuildContext context, RepairJob job) {

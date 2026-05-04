@@ -73,16 +73,17 @@ class AppTheme {
         filled: true,
         fillColor: Colors.white.withValues(alpha: 0.5),
         contentPadding: const EdgeInsets.symmetric(
-          horizontal: 20,
-          vertical: 16,
+          horizontal: 14,
+          vertical: 10,
         ),
         hintStyle: GoogleFonts.poppins(
           color: Color(AppConstants.textSecondary),
-          fontSize: 15,
+          fontSize: 12,
         ),
         labelStyle: GoogleFonts.poppins(
           color: Color(AppConstants.textPrimary),
-          fontSize: 15,
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
         ),
         errorStyle: GoogleFonts.poppins(
           color: Color(AppConstants.errorColor),
@@ -227,23 +228,23 @@ class AppTheme {
         ),
         titleLarge: GoogleFonts.poppins(
           fontSize: 16,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w700,
           color: Color(AppConstants.textPrimary),
         ),
         titleMedium: GoogleFonts.poppins(
           fontSize: 14,
-          fontWeight: FontWeight.w500,
+          fontWeight: FontWeight.w700,
           color: Color(AppConstants.textPrimary),
         ),
         bodyLarge: GoogleFonts.poppins(
-          fontSize: 14,
+          fontSize: 13,
           fontWeight: FontWeight.w400,
           color: Color(AppConstants.textPrimary),
         ),
         bodyMedium: GoogleFonts.poppins(
           fontSize: 13,
           fontWeight: FontWeight.w400,
-          color: Color(AppConstants.textSecondary),
+          color: Color(AppConstants.textPrimary),
         ),
         bodySmall: GoogleFonts.poppins(
           fontSize: 12,

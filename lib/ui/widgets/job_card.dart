@@ -59,7 +59,7 @@ class JobCard extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         '${job.customerName} • ${job.customerPhone}',
-                        style: Theme.of(context).textTheme.bodySmall,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -100,7 +100,7 @@ class JobCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Rs. ${job.repairPrice.toStringAsFixed(0)}',
+                      'PKR ${job.repairPrice.toStringAsFixed(0)}',
                       style: Theme.of(context).textTheme.titleMedium
                           ?.copyWith(
                             color: Color(AppConstants.primaryColor),
@@ -129,87 +129,143 @@ class JobCard extends StatelessWidget {
             const SizedBox(height: 12),
 
             // Action Buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            Column(
               children: [
                 if (job.status == 'pending')
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () {
-                        _markAsDone(context, job);
-                      },
-                      icon: const Icon(Icons.check),
-                      label: const Text('Done'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Color(AppConstants.successColor),
-                        side: BorderSide(
-                          color: Color(AppConstants.successColor),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () => _markAsDone(context, job),
+                          icon: const Icon(Icons.check, size: 14),
+                          label: const Text('Done', style: TextStyle(fontSize: 12)),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Color(AppConstants.successColor),
+                            side: BorderSide(color: Color(AppConstants.successColor)),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                            minimumSize: const Size(0, 36),
+                          ),
                         ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () => _reportIssue(context, job),
+                          icon: const Icon(Icons.warning, size: 14),
+                          label: const Text('Issue', style: TextStyle(fontSize: 12)),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Color(AppConstants.warningColor),
+                            side: BorderSide(color: Color(AppConstants.warningColor)),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                            minimumSize: const Size(0, 36),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                if (job.status == 'issue_found' || job.status == 'done')
+                  Row(
+                    children: [
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: () => _markPending(context, job),
+                          icon: const Icon(Icons.pending, size: 14),
+                          label: const Text('Pending', style: TextStyle(fontSize: 12)),
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Color(AppConstants.warningColor),
+                            side: BorderSide(color: Color(AppConstants.warningColor)),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                            minimumSize: const Size(0, 36),
+                          ),
+                        ),
+                      ),
+                      if (job.status == 'issue_found') ...[
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: OutlinedButton.icon(
+                            onPressed: () => _markAsDone(context, job),
+                            icon: const Icon(Icons.check, size: 14),
+                            label: const Text('Done', style: TextStyle(fontSize: 12)),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Color(AppConstants.successColor),
+                              side: BorderSide(color: Color(AppConstants.successColor)),
+                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                              minimumSize: const Size(0, 36),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                if (job.status == 'pending' || job.status == 'issue_found' || job.status == 'done')
+                  const SizedBox(height: 6),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          Navigator.of(context).pushNamed('/print-bill', arguments: job);
+                        },
+                        icon: const Icon(Icons.print, size: 14),
+                        label: const Text('Bill', style: TextStyle(fontSize: 12)),
+                        style: OutlinedButton.styleFrom(
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                          minimumSize: const Size(0, 36),
                         ),
                       ),
                     ),
-                  ),
-                if (job.status == 'pending') const SizedBox(width: 8),
-                if (job.status == 'pending')
-                  Expanded(
-                    child: OutlinedButton.icon(
-                      onPressed: () {
-                        _reportIssue(context, job);
-                      },
-                      icon: const Icon(Icons.warning),
-                      label: const Text('Issue'),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Color(AppConstants.warningColor),
-                        side: BorderSide(
-                          color: Color(AppConstants.warningColor),
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          Navigator.of(context).pushNamed('/job-detail', arguments: job);
+                        },
+                        icon: const Icon(Icons.visibility, size: 14),
+                        label: const Text('View', style: TextStyle(fontSize: 12)),
+                        style: OutlinedButton.styleFrom(
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                          minimumSize: const Size(0, 36),
                         ),
                       ),
                     ),
-                  ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      // Navigate to print bill
-                      Navigator.of(
-                        context,
-                      ).pushNamed('/print-bill', arguments: job);
-                    },
-                    icon: const Icon(Icons.print),
-                    label: const Text('Bill'),
-                    style: OutlinedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: OutlinedButton.icon(
-                    onPressed: () {
-                      Navigator.of(
-                        context,
-                      ).pushNamed('/job-detail', arguments: job);
-                    },
-                    icon: const Icon(Icons.visibility),
-                    label: const Text('View'),
-                    style: OutlinedButton.styleFrom(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
-                  ),
+                  ],
                 ),
               ],
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _markPending(BuildContext context, RepairJob job) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Move to Pending?'),
+        content: const Text('This will reset the job status to pending.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+              context.read<RepairProvider>().markPending(job.id);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Color(AppConstants.warningColor),
+            ),
+            child: const Text('Confirm'),
+          ),
+        ],
       ),
     );
   }

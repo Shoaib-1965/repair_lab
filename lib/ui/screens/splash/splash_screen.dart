@@ -50,68 +50,91 @@ class _SplashScreenState extends State<SplashScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       body: GradientBlobBackground(
-        child: Center(
-          child: FadeTransition(
-            opacity: _fadeAnimation,
-            child: ScaleTransition(
-              scale: _scaleAnimation,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Logo Icon — Glass Card
-                  GlassCard(
-                    padding: const EdgeInsets.all(24),
-                    borderRadius: BorderRadius.circular(30),
-                    child: Icon(
-                      Icons.build_rounded,
-                      size: 50,
-                      color: Color(AppConstants.primaryColor),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  // App Name
-                  Text(
-                    'JTC Repair Lab',
-                    style: GoogleFonts.poppins(
-                      fontSize: 25,
-                      fontWeight: FontWeight.w700,
-                      color: Color(AppConstants.textPrimary),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  // Tagline
-                  Text(
-                    'Professional Mobile Repair Management',
-                    style: GoogleFonts.poppins(
-                      fontSize: 15,
-                      color: Color(AppConstants.textSecondary),
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  // By Usman & Saad
-                  Text(
-                    'By Usman & Saad',
-                    style: GoogleFonts.poppins(
-                      fontSize: 14,
-                      color: Color(AppConstants.textSecondary),
-                    ),
-                  ),
-                  const SizedBox(height: 48),
-                  // Loading Indicator
-                  SizedBox(
-                    width: 40,
-                    height: 40,
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation(
-                        Color(AppConstants.primaryColor),
+        child: Stack(
+          children: [
+            Center(
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: ScaleTransition(
+                  scale: _scaleAnimation,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      // Logo Icon — Glass Card
+                      GlassCard(
+                        padding: const EdgeInsets.all(24),
+                        borderRadius: BorderRadius.circular(30),
+                        child: Icon(
+                          Icons.build_rounded,
+                          size: 50,
+                          color: Color(AppConstants.primaryColor),
+                        ),
                       ),
-                      strokeWidth: 3,
-                    ),
+                      const SizedBox(height: 24),
+                      // App Name
+                      Text(
+                        'JTC Repair Lab',
+                        style: GoogleFonts.poppins(
+                          fontSize: 25,
+                          fontWeight: FontWeight.w700,
+                          color: Color(AppConstants.textPrimary),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      // Tagline
+                      Text(
+                        'Professional Mobile Repair Management',
+                        style: GoogleFonts.poppins(
+                          fontSize: 15,
+                          color: Color(AppConstants.textSecondary),
+                        ),
+                      ),
+                      const SizedBox(height: 48),
+                      // Loading Indicator
+                      SizedBox(
+                        width: 40,
+                        height: 40,
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation(
+                            Color(AppConstants.primaryColor),
+                          ),
+                          strokeWidth: 3,
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
-          ),
+            Positioned(
+              bottom: 40,
+              left: 0,
+              right: 0,
+              child: FadeTransition(
+                opacity: _fadeAnimation,
+                child: Column(
+                  children: [
+                    Text(
+                      'V1.01',
+                      style: GoogleFonts.poppins(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Color(AppConstants.primaryColor),
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'By JTC Solutions',
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        color: Color(AppConstants.textSecondary),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

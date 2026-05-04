@@ -62,6 +62,17 @@ class RepairProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> markPending(String id) async {
+    final job = _box.get(id);
+    if (job != null) {
+      job.status = 'pending';
+      job.completedAt = null;
+      job.extraIssueNote = null;
+      await job.save();
+      notifyListeners();
+    }
+  }
+
   Future<void> deleteJob(String id) async {
     await _box.delete(id);
     notifyListeners();

@@ -19,10 +19,10 @@ class WhatsAppUtils {
       'Assalam o Alaikum $customerName Sahab! 🙏\n\n'
       'Aap ka $deviceModel repair ho gaya hai. ✅\n'
       'Aap JTC Lab se kabhi bhi le sakte hain.\n\n'
-      'Bill Amount: Rs. ${price.toStringAsFixed(0)}\n\n'
+      'Bill Amount: PKR ${price.toStringAsFixed(0)}\n\n'
       'Shukriya JTC Lab choose karne ka! 💙\n\n'
       '📞 Usman: 0345-7599995\n'
-      '📞 Saad:  0345-7701965\n'
+      '📞 Saad: 0345-7595781\n'
       '📍 نزد ڈھول سکندر، محلہ گڑھ، چنیوٹ',
     );
     final uri = Uri.parse('https://wa.me/$number?text=$message');
@@ -39,13 +39,14 @@ class WhatsAppUtils {
   }) async {
     final number = _formatPKNumber(customerPhone);
     final message = Uri.encodeComponent(
-      'Assalam o Alaikum $customerName!\\n\\n'
-      'During repair of your *$deviceModel*, we found an additional issue:\\n\\n'
-      '⚠️ *$issueNote*\\n\\n'
-      'Please contact us to discuss:\\n'
-      '📞 Usman: 0345-7599995\\n'
-      '📞 Saad: 0345-7701965\\n\\n'
-      'JTC Repair Lab',
+      'Assalam o Alaikum $customerName! 👋\n\n'
+      'Aap ke $deviceModel ki repair ke dauran ek aur masla mila hai:\n\n'
+      '⚠️ $issueNote\n\n'
+      'Meherbani karke humse rabta karein:\n'
+      '📞 Usman: 0345-7599995\n'
+      '📞 Saad: 0345-7595781\n\n'
+      'JTC Repair Lab\n'
+      'نزد ڈھول سکندر، محلہ گڑھ، چنیوٹ',
     );
     final uri = Uri.parse('https://wa.me/$number?text=$message');
     if (await canLaunchUrl(uri)) {

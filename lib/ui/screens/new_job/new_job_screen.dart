@@ -163,7 +163,7 @@ class _NewJobScreenState extends State<NewJobScreen> {
               const SizedBox(height: 12),
               Card(
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(12),
                   child: Column(
                     children: [
                       TextFormField(
@@ -175,7 +175,7 @@ class _NewJobScreenState extends State<NewJobScreen> {
                         validator: (value) =>
                             value?.isEmpty ?? true ? 'Required' : null,
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 8),
                       TextFormField(
                         controller: _phoneController,
                         decoration: const InputDecoration(
@@ -186,7 +186,7 @@ class _NewJobScreenState extends State<NewJobScreen> {
                         validator: (value) =>
                             value?.isEmpty ?? true ? 'Required' : null,
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 8),
                       TextFormField(
                         controller: _cnicController,
                         decoration: const InputDecoration(
@@ -205,7 +205,7 @@ class _NewJobScreenState extends State<NewJobScreen> {
               const SizedBox(height: 12),
               Card(
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(12),
                   child: Column(
                     children: [
                       Autocomplete<String>(
@@ -285,12 +285,12 @@ class _NewJobScreenState extends State<NewJobScreen> {
                           );
                         },
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
                       // Image Picker
                       GestureDetector(
                         onTap: _showImagePickerSheet,
                         child: Container(
-                          height: 120,
+                          height: 140,
                           decoration: BoxDecoration(
                             border: Border.all(
                               color: Color(AppConstants.primaryColor),
@@ -346,15 +346,18 @@ class _NewJobScreenState extends State<NewJobScreen> {
                                   children: [
                                     Icon(
                                       Icons.camera_alt,
-                                      size: 32,
+                                      size: 36,
                                       color: Color(AppConstants.primaryColor),
                                     ),
                                     const SizedBox(height: 8),
-                                    Text(
-                                      'Tap to add photo',
-                                      style: Theme.of(
-                                        context,
-                                      ).textTheme.bodySmall,
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                                      child: Text(
+                                        'Tap to add\ndevice photo',
+                                        textAlign: TextAlign.center,
+                                        softWrap: true,
+                                        style: Theme.of(context).textTheme.bodySmall,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -371,7 +374,7 @@ class _NewJobScreenState extends State<NewJobScreen> {
               const SizedBox(height: 12),
               Card(
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(12),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -381,8 +384,8 @@ class _NewJobScreenState extends State<NewJobScreen> {
                       ),
                       const SizedBox(height: 12),
                       Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
+                        spacing: 6,
+                        runSpacing: 6,
                         children: AppConstants.issueTags.map((tag) {
                           final isSelected = _selectedTags.contains(tag);
                           return FilterChip(
@@ -398,10 +401,12 @@ class _NewJobScreenState extends State<NewJobScreen> {
                               });
                             },
                             backgroundColor: Colors.transparent,
+                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                             selectedColor: Color(
                               AppConstants.primaryColor,
                             ).withValues(alpha: 0.2),
                             labelStyle: TextStyle(
+                              fontSize: 11,
                               color: isSelected
                                   ? Color(AppConstants.primaryColor)
                                   : Color(AppConstants.textSecondary),
@@ -440,20 +445,20 @@ class _NewJobScreenState extends State<NewJobScreen> {
               const SizedBox(height: 12),
               Card(
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.all(12),
                   child: Column(
                     children: [
                       TextFormField(
                         controller: _priceController,
                         decoration: const InputDecoration(
                           labelText: 'Estimated Price',
-                          prefixText: 'Rs. ',
+                          prefixText: 'PKR ',
                         ),
                         keyboardType: TextInputType.number,
                         validator: (value) =>
                             value?.isEmpty ?? true ? 'Required' : null,
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
                       TextFormField(
                         controller: _timeController,
                         decoration: const InputDecoration(
@@ -463,7 +468,7 @@ class _NewJobScreenState extends State<NewJobScreen> {
                         validator: (value) =>
                             value?.isEmpty ?? true ? 'Required' : null,
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
                       Text(
                         'Quick Time Options',
                         style: Theme.of(context).textTheme.titleMedium,

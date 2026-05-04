@@ -98,7 +98,7 @@ class _PrintBillScreenState extends State<PrintBillScreen> {
         text: '🔧 *${AppConstants.labFullName}*\n'
             'Bill: $billNumber\n'
             'Customer: ${job.customerName}\n'
-            'Amount: Rs. ${job.repairPrice}',
+            'Amount: PKR ${job.repairPrice}',
       );
 
       if (!mounted) return;
@@ -131,6 +131,39 @@ class _PrintBillScreenState extends State<PrintBillScreen> {
         duration: Duration(seconds: 3),
       ),
     );
+  }
+
+  String _calculateReadyTime(DateTime received, String estimatedTime) {
+    DateTime readyTime = received;
+    String formattedTime(DateTime time) {
+      final hour = time.hour == 0 ? 12 : (time.hour > 12 ? time.hour - 12 : time.hour);
+      final minute = time.minute.toString().padLeft(2, '0');
+      final period = time.hour < 12 ? 'AM' : 'PM';
+      return '${hour.toString().padLeft(2, '0')}:$minute $period';
+    }
+
+    if (estimatedTime == '1 Hour') {
+      readyTime = received.add(const Duration(hours: 1));
+      return formattedTime(readyTime);
+    } else if (estimatedTime == '2 Hours') {
+      readyTime = received.add(const Duration(hours: 2));
+      return formattedTime(readyTime);
+    } else if (estimatedTime == '3 Hours') {
+      readyTime = received.add(const Duration(hours: 3));
+      return formattedTime(readyTime);
+    } else if (estimatedTime == 'Same Day') {
+      return 'Today by 8:00 PM';
+    } else if (estimatedTime == 'Tomorrow') {
+      readyTime = received.add(const Duration(days: 1));
+      return formattedTime(readyTime);
+    } else if (estimatedTime == '2 Days') {
+      readyTime = received.add(const Duration(days: 2));
+      return formattedTime(readyTime);
+    } else if (estimatedTime == '1 Week') {
+      readyTime = received.add(const Duration(days: 7));
+      return formattedTime(readyTime);
+    }
+    return estimatedTime;
   }
 
   // ─── BUILD ──────────────────────────────────────────────────────────────────
@@ -250,10 +283,6 @@ class _PrintBillScreenState extends State<PrintBillScreen> {
                         'Date',
                         AppDateUtils.formatDateShort(DateTime.now()),
                       ),
-                      _thermalRow(
-                        'Time',
-                        AppDateUtils.formatTime(job.receivedAt),
-                      ),
 
                       const SizedBox(height: 5),
                       _thermalDashedLine(),
@@ -309,7 +338,8 @@ class _PrintBillScreenState extends State<PrintBillScreen> {
                       // ── REPAIR DETAILS ────────────────────────────────────
                       _thermalSectionLabel('REPAIR DETAILS'),
                       const SizedBox(height: 3),
-                      _thermalRow('Est. Time', job.estimatedTime),
+                      _thermalRow('Received', AppDateUtils.formatTime(job.receivedAt)),
+                      _thermalRow('Ready By', _calculateReadyTime(job.receivedAt, job.estimatedTime)),
                       const SizedBox(height: 4),
 
                       // Amount Box
@@ -338,7 +368,7 @@ class _PrintBillScreenState extends State<PrintBillScreen> {
                               ),
                             ),
                             Text(
-                              'Rs. ${job.repairPrice}',
+                              'PKR ${job.repairPrice}',
                               style: GoogleFonts.sourceCodePro(
                                 fontSize: 10,
                                 fontWeight: FontWeight.w900,
@@ -375,22 +405,11 @@ class _PrintBillScreenState extends State<PrintBillScreen> {
 
                       // ── FOOTER ────────────────────────────────────────────
                       Text(
-                        '** THANK YOU **',
+                        AppConstants.addressUrdu,
                         textAlign: TextAlign.center,
-                        style: GoogleFonts.sourceCodePro(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 2,
+                        style: GoogleFonts.poppins(
+                          fontSize: 8,
                           color: const Color(0xFF1A1A1A),
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        'Visit Again!',
-                        textAlign: TextAlign.center,
-                        style: GoogleFonts.sourceCodePro(
-                          fontSize: 7.5,
-                          color: const Color(0xFF555555),
                         ),
                       ),
                       const SizedBox(height: 8),

@@ -7,15 +7,14 @@ class AppConstants {
   static const String owner1Name = 'Usman';
   static const String owner1Phone = '0345-7599995';
   static const String owner2Name = 'Saad';
-  static const String owner2Phone = '0345-7701965';
+  static const String owner2Phone = '0345-7595781';
   static const String labTagline = 'Professional Mobile Repair Management';
   static const String billPrefix = 'JTC';
 
   // Bill Footer Notes
   static const List<String> billNotes = [
-    '• Device checked thoroughly before and after repair.',
-    '• Customer responsible for personal data backup.',
-    '• 15 days warranty on replaced parts only.',
+    '• Please collect your device within 15 days of completion.',
+    '• We are not responsible for any data loss during repair.',
   ];
 
   // Pre-built Issue Tags
@@ -27,19 +26,15 @@ class AppConstants {
     'Mic Issue',
     'Back Glass',
     'Water Damage',
-    'Software Issue',
     'Hanging / Lag',
-    'Camera Issue',
     'Touch Issue',
-    'Power Button',
-    'Volume Button',
-    'SIM Not Working',
+    'Camera Issue',
     'Network Issue',
-    'Overheating',
-    'Face ID / Fingerprint',
-    'Headphone Jack',
-    'Vibration Issue',
     'WiFi Issue',
+    'Software Crash',
+    'App Not Working',
+    'Factory Reset Required',
+    'Virus / Malware',
   ];
 
   // Estimated Time Quick-Select
@@ -56,8 +51,10 @@ class AppConstants {
   // Mobile Models for Auto-Suggestion
   static const List<String> mobileModels = [
     // Samsung Galaxy A Series
-    'Samsung Galaxy A05', 'Samsung Galaxy A05s', 'Samsung Galaxy A14', 'Samsung Galaxy A15',
-    'Samsung Galaxy A24', 'Samsung Galaxy A25', 'Samsung Galaxy A34', 'Samsung Galaxy A35',
+    'Samsung Galaxy A05', 'Samsung Galaxy A05s', 'Samsung Galaxy A14',
+    'Samsung Galaxy A15',
+    'Samsung Galaxy A24', 'Samsung Galaxy A25', 'Samsung Galaxy A34',
+    'Samsung Galaxy A35',
     'Samsung Galaxy A54', 'Samsung Galaxy A55', 'Samsung Galaxy A74',
     // Samsung Galaxy S Series
     'Samsung Galaxy S23', 'Samsung Galaxy S23+', 'Samsung Galaxy S23 Ultra',
@@ -110,9 +107,11 @@ class AppConstants {
     'Realme GT 5', 'Realme GT 6',
 
     // Tecno
-    'Tecno Spark 10', 'Tecno Spark 10 Pro', 'Tecno Spark 20', 'Tecno Spark 20 Pro',
+    'Tecno Spark 10', 'Tecno Spark 10 Pro', 'Tecno Spark 20',
+    'Tecno Spark 20 Pro',
     'Tecno Spark 30', 'Tecno Spark Go 2024',
-    'Tecno Camon 20', 'Tecno Camon 20 Pro', 'Tecno Camon 30', 'Tecno Camon 30 Pro',
+    'Tecno Camon 20', 'Tecno Camon 20 Pro', 'Tecno Camon 30',
+    'Tecno Camon 30 Pro',
     'Tecno Pop 7 Pro', 'Tecno Pop 8', 'Tecno Pop 9',
     'Tecno Pova 5', 'Tecno Pova 6',
     'Tecno Phantom V Fold', 'Tecno Phantom V Flip',
@@ -120,13 +119,15 @@ class AppConstants {
     // Infinix
     'Infinix Hot 30', 'Infinix Hot 30i', 'Infinix Hot 40', 'Infinix Hot 40 Pro',
     'Infinix Hot 50', 'Infinix Hot 50 Pro',
-    'Infinix Note 30', 'Infinix Note 30 Pro', 'Infinix Note 40', 'Infinix Note 40 Pro',
+    'Infinix Note 30', 'Infinix Note 30 Pro', 'Infinix Note 40',
+    'Infinix Note 40 Pro',
     'Infinix Smart 8', 'Infinix Smart 8 Plus', 'Infinix Smart 9',
     'Infinix Zero 30', 'Infinix Zero 40',
     'Infinix GT 10 Pro', 'Infinix GT 20 Pro',
 
     // OnePlus
-    'OnePlus Nord CE 3', 'OnePlus Nord CE 4', 'OnePlus Nord 3', 'OnePlus Nord 4',
+    'OnePlus Nord CE 3', 'OnePlus Nord CE 4', 'OnePlus Nord 3',
+    'OnePlus Nord 4',
     'OnePlus 11', 'OnePlus 11R', 'OnePlus 12', 'OnePlus 12R',
     'OnePlus 13', 'OnePlus 13R',
 
@@ -171,7 +172,7 @@ class AppConstants {
   static const int errorColor = 0xFFE74C3C; // Red
   static const int bgColor = 0xFFF8FAFF; // Barely blue-white
   static const int textPrimary = 0xFF1A1A2E; // Near black
-  static const int textSecondary = 0xFF6B7280; // Gray
+  static const int textSecondary = 0xFF3D3D3D; // Darker gray
   static const int cardBgColor = 0xFFF8FAFF; // Card background
   static const int fillColor = 0xFFF0F4FF; // Input fill color
 }

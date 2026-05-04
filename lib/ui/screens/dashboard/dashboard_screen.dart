@@ -47,23 +47,25 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   children: [
                     // Space for AppBar
                     SizedBox(
-                      height: MediaQuery.of(context).padding.top + kToolbarHeight + 20,
+                      height: MediaQuery.of(context).padding.top +
+                          kToolbarHeight +
+                          10,
                     ),
 
                     // Stats Row
                     _buildStatsRow(context, repairProvider),
 
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 12),
 
                     // Search Bar
                     _buildSearchBar(context),
 
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
 
                     // Filter Chips
                     _buildFilterChips(context),
 
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
 
                     // Jobs List or Empty State
                     if (filteredJobs.isEmpty)
@@ -192,6 +194,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
             border: InputBorder.none,
             enabledBorder: InputBorder.none,
             focusedBorder: InputBorder.none,
+            isDense: true,
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
           ),
           onChanged: (value) {
             setState(() => _searchQuery = value);
@@ -249,8 +254,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
               Text(
                 'No repair jobs yet',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  color: Color(AppConstants.textSecondary),
-                ),
+                      color: Color(AppConstants.textSecondary),
+                    ),
               ),
               const SizedBox(height: 8),
               Text(
