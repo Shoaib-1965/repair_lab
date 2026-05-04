@@ -172,7 +172,7 @@ class JobCard extends StatelessWidget {
                         child: OutlinedButton.icon(
                           onPressed: () => _markPending(context, job),
                           icon: const Icon(Icons.pending, size: 14),
-                          label: const Text('Pending', style: TextStyle(fontSize: 12)),
+                          label: const Text('Set Pending', style: TextStyle(fontSize: 12)),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: Color(AppConstants.warningColor),
                             side: BorderSide(color: Color(AppConstants.warningColor)),

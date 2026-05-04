@@ -10,6 +10,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 
 // 58mm thermal printer: 58mm width, ~164 dots/line at 8 dots/mm
 // In logical pixels at ~2.625 dp/mm => 58mm * 2.625 ≈ 152 dp
@@ -32,8 +33,7 @@ class _PrintBillScreenState extends State<PrintBillScreen> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    job =
-        ModalRoute.of(context)?.settings.arguments as RepairJob? ??
+    job = ModalRoute.of(context)?.settings.arguments as RepairJob? ??
         RepairJob(
           id: '',
           customerName: '',
@@ -70,8 +70,8 @@ class _PrintBillScreenState extends State<PrintBillScreen> {
 
       if (!mounted) return;
 
-      final boundary = _billKey.currentContext?.findRenderObject()
-          as RenderRepaintBoundary?;
+      final boundary =
+          _billKey.currentContext?.findRenderObject() as RenderRepaintBoundary?;
       if (boundary == null) {
         throw Exception('Could not find RepaintBoundary. Try again.');
       }
@@ -136,7 +136,8 @@ class _PrintBillScreenState extends State<PrintBillScreen> {
   String _calculateReadyTime(DateTime received, String estimatedTime) {
     DateTime readyTime = received;
     String formattedTime(DateTime time) {
-      final hour = time.hour == 0 ? 12 : (time.hour > 12 ? time.hour - 12 : time.hour);
+      final hour =
+          time.hour == 0 ? 12 : (time.hour > 12 ? time.hour - 12 : time.hour);
       final minute = time.minute.toString().padLeft(2, '0');
       final period = time.hour < 12 ? 'AM' : 'PM';
       return '${hour.toString().padLeft(2, '0')}:$minute $period';
@@ -155,13 +156,16 @@ class _PrintBillScreenState extends State<PrintBillScreen> {
       return 'Today by 8:00 PM';
     } else if (estimatedTime == 'Tomorrow') {
       readyTime = received.add(const Duration(days: 1));
-      return formattedTime(readyTime);
+      return '${DateFormat('EEEE').format(readyTime)} ${formattedTime(readyTime)}';
+    } else if (estimatedTime == 'Day After Tomorrow') {
+      readyTime = received.add(const Duration(days: 2));
+      return '${DateFormat('EEEE').format(readyTime)} ${formattedTime(readyTime)}';
     } else if (estimatedTime == '2 Days') {
       readyTime = received.add(const Duration(days: 2));
       return formattedTime(readyTime);
     } else if (estimatedTime == '1 Week') {
       readyTime = received.add(const Duration(days: 7));
-      return formattedTime(readyTime);
+      return '${DateFormat('EEEE').format(readyTime)} ${formattedTime(readyTime)}';
     }
     return estimatedTime;
   }
@@ -237,13 +241,19 @@ class _PrintBillScreenState extends State<PrintBillScreen> {
                     children: [
                       // ── SHOP NAME ─────────────────────────────────────────
                       Text(
-                        AppConstants.labFullName.toUpperCase(),
+                        'جنید ٹیلی کام ریپئرنگ لیب',
                         textAlign: TextAlign.center,
-                        style: GoogleFonts.sourceCodePro(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w800,
-                          letterSpacing: 1.4,
-                          color: const Color(0xFF1A1A1A),
+                        textDirection: TextDirection.rtl,
+                        style: const TextStyle(
+                          fontFamily: 'AA Sameer Qamri Regular',
+                          fontFamilyFallback: [
+                            'Jameel Noori Nastaleeq',
+                            'Noto Nastaliq Urdu'
+                          ],
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF1A1A1A),
+                          height: 1.2,
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -338,8 +348,12 @@ class _PrintBillScreenState extends State<PrintBillScreen> {
                       // ── REPAIR DETAILS ────────────────────────────────────
                       _thermalSectionLabel('REPAIR DETAILS'),
                       const SizedBox(height: 3),
-                      _thermalRow('Received', AppDateUtils.formatTime(job.receivedAt)),
-                      _thermalRow('Ready By', _calculateReadyTime(job.receivedAt, job.estimatedTime)),
+                      _thermalRow(
+                          'Received', AppDateUtils.formatTime(job.receivedAt)),
+                      _thermalRow(
+                          'Ready By',
+                          _calculateReadyTime(
+                              job.receivedAt, job.estimatedTime)),
                       const SizedBox(height: 4),
 
                       // Amount Box
@@ -405,11 +419,19 @@ class _PrintBillScreenState extends State<PrintBillScreen> {
 
                       // ── FOOTER ────────────────────────────────────────────
                       Text(
-                        AppConstants.addressUrdu,
+                        'نزد ڈھول سکندر، محلہ گڑھ، چنیوٹ',
                         textAlign: TextAlign.center,
-                        style: GoogleFonts.poppins(
-                          fontSize: 8,
-                          color: const Color(0xFF1A1A1A),
+                        textDirection: TextDirection.rtl,
+                        style: const TextStyle(
+                          fontFamily: 'AA Sameer Qamri Regular',
+                          fontFamilyFallback: [
+                            'Jameel Noori Nastaleeq',
+                            'Noto Nastaliq Urdu'
+                          ],
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF1A1A1A),
+                          height: 1.2,
                         ),
                       ),
                       const SizedBox(height: 8),

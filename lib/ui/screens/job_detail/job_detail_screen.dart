@@ -9,6 +9,7 @@ import '../../../core/widgets/glass_widgets.dart';
 import '../../widgets/tag_chip.dart';
 import '../../widgets/status_badge.dart';
 import 'dart:io';
+import 'package:url_launcher/url_launcher.dart';
 
 class JobDetailScreen extends StatelessWidget {
   const JobDetailScreen({super.key});
@@ -118,7 +119,19 @@ class JobDetailScreen extends StatelessWidget {
       const SizedBox(height: 12),
       _buildDetailRow(context, 'Name', job.customerName, Icons.person),
       const SizedBox(height: 12),
-      _buildDetailRow(context, 'Phone', job.customerPhone, Icons.phone, onTap: () => _callPhone(context, job.customerPhone)),
+      _buildDetailRow(context, 'Phone', job.customerPhone, Icons.phone, widget: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.phone, color: Colors.blue),
+            onPressed: () => _callPhone(context, job.customerPhone),
+          ),
+          IconButton(
+            icon: const Icon(Icons.chat, color: Colors.green),
+            onPressed: () => WhatsAppUtils.openWhatsApp(job.customerPhone),
+          ),
+        ],
+      )),
       if (job.customerCNIC != null) ...[const SizedBox(height: 12), _buildDetailRow(context, 'CNIC', job.customerCNIC!, Icons.credit_card)],
     ]));
   }
@@ -143,7 +156,7 @@ class JobDetailScreen extends StatelessWidget {
     return GlassCard(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Text('REPAIR INFORMATION', style: Theme.of(context).textTheme.titleLarge?.copyWith(letterSpacing: 1.2, fontSize: 14)),
       const SizedBox(height: 12),
-      _buildDetailRow(context, 'Estimated Price', 'PKR ${job.repairPrice.toStringAsFixed(0)}', Icons.currency_rupee),
+      _buildDetailRow(context, 'Estimated Price', 'PKR ${job.repairPrice.toStringAsFixed(0)}', Icons.payments),
       const SizedBox(height: 12),
       _buildDetailRow(context, 'Estimated Time', job.estimatedTime, Icons.schedule),
       const SizedBox(height: 12),
@@ -337,7 +350,15 @@ class JobDetailScreen extends StatelessWidget {
       actions: [
         TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
         ElevatedButton(
-          onPressed: () { Navigator.pop(context); ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Phone feature coming soon'))); },
+          onPressed: () async { 
+            Navigator.pop(context); 
+            final uri = Uri.parse('tel:$phone');
+            try {
+              await launchUrl(uri);
+            } catch (e) {
+              if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Could not launch phone app')));
+            }
+          },
           child: const Text('Call'),
         ),
       ],

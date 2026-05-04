@@ -44,6 +44,7 @@ class AppConstants {
     '3 Hours',
     'Same Day',
     'Tomorrow',
+    'Day After Tomorrow',
     '2 Days',
     '1 Week',
   ];
