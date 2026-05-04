@@ -1,202 +1,217 @@
-MODIFICATIONS TO JTC REPAIR LAB FLUTTER APP
-============================================
-
-Apply the following changes to the existing JTC Repair Lab Flutter app:
+Apply these 10 fixes to the JTC Repair Lab Flutter app:
 
 ─────────────────────────────────────────────
-CHANGE 1: BILL / RECEIPT UPGRADES
+FIX 1: JOB CARD BUTTONS OVERFLOW
 ─────────────────────────────────────────────
-
-1a. URDU HEADER ON BILL
-- At the very top of the printed/preview bill, show the shop name in Urdu:
-  جُنید ٹیلی کام ریپیئرنگ لیب
-- Below it show contact info:
-  Usman: 0345-7599995
-  Saad:  0345-7701965
-- At the bottom of the bill show this address line in Urdu:
-  نزد ڈھول سکندر، محلہ گڑھ، چنیوٹ
-- Use a font that supports Urdu/Arabic script. Use the 'google_fonts' package 
-  with 'NotoNastaliqUrdu' or embed a .ttf Urdu font asset in the app.
-- Urdu text must be Right-to-Left (RTL) aligned.
-
-1b. BILL PREVIEW SCREEN
-- Before printing, show a full scrollable preview of the bill inside the app.
-- The preview must look exactly like the printed output (same layout, same fonts).
-- Use a white card with a subtle shadow to simulate a paper receipt.
-- Add a "Print" button and a "Share" button at the bottom of the preview screen.
-
-1c. SHAREABLE BILL (IMAGE + PDF)
-- Add two share options on the bill preview screen:
-  OPTION A — Share as Image (PNG):
-    - Capture the bill preview widget using RepaintBoundary + RenderRepaintBoundary.
-    - Save as PNG to temporary directory using path_provider.
-    - Open native share sheet using the 'share_plus' package.
-  OPTION B — Share as PDF:
-    - Generate a PDF of the bill using the 'pdf' package (pub.dev package: pdf ^3.10.x).
-    - Use the 'printing' package (^5.12.x) for both PDF preview and share/print.
-    - The PDF must contain all bill fields including Urdu text (embed Urdu font in PDF).
-    - Share via native share sheet or open print dialog.
-- Add these packages to pubspec.yaml:
-    share_plus: ^7.2.2
-    pdf: ^3.10.8
-    printing: ^5.12.0
+The Done, Issue, Bill, View buttons on job cards are 
+overflowing vertically. Fix by:
+- Wrap buttons in a Column with 2 rows instead of one Row
+- Row 1: Done button + Issue button (each Expanded)
+- Row 2: Bill button + View button (each Expanded)
+- Each button height: 36px, font size 12, icon size 14
+- Reduce button padding to EdgeInsets.symmetric(horizontal:8, vertical:6)
+- Add 6px gap between the two rows
+- Use compact text labels: Done, Issue, Bill, View
 
 ─────────────────────────────────────────────
-CHANGE 2: IN-APP NOTIFICATIONS (LOCAL PUSH)
+FIX 2: TEXT FIELDS TOO BIG IN NEW JOB FORM
 ─────────────────────────────────────────────
-
-- Add the 'flutter_local_notifications' package (^17.x.x) to pubspec.yaml.
-- Initialize notifications in main.dart with an Android notification channel 
-  named "JTC Lab Alerts" with HIGH importance.
-- Show a local notification popup in these events:
-  a) New repair job saved → "New Job Added ✅" with customer name + device model in body.
-  b) Job marked as Done → "Repair Complete 🎉" with customer name + device model.
-  c) Issue reported on a job → "Issue Found ⚠️" with the issue note in body.
-  d) Borrow item added → "Part Borrowed 📦" with part name + shop name.
-- Notifications must appear even when the app is in the foreground (use 
-  onDidReceiveNotificationResponse for foreground handling).
-- Add POST_NOTIFICATIONS permission to AndroidManifest.xml for Android 13+.
-- Request notification permission at app startup using permission_handler.
+Make all input fields in NewJobScreen more compact and attractive:
+- Reduce contentPadding to EdgeInsets.symmetric(horizontal:14, vertical:10)
+- Reduce font size of input text to 13
+- Reduce label font size to 13
+- Reduce hint font size to 12
+- Border radius keep at 16 but reduce overall field height
+- Reduce spacing between fields from 12 to 8
+- Reduce card internal padding from 16 to 12
+- Make the form feel light and easy to fill, not heavy and bulky
 
 ─────────────────────────────────────────────
-CHANGE 3: iOS 26 / GLASSMORPHISM UI OVERHAUL
+FIX 3: PHOTO PICKER + ISSUE TAGS
 ─────────────────────────────────────────────
+Photo picker container:
+- Increase container height to 140px
+- Center the camera icon (size 36) and text perfectly
+- Use Text widget with textAlign: TextAlign.center
+- Wrap text in Padding so it never overflows the container
+- Text: "Tap to add\ndevice photo" with softWrap true
 
-- Redesign the entire app UI with a modern Glassmorphism style inspired by iOS 26.
-- Keep the white base background but add frosted-glass cards throughout.
+Issue tags — replace the current full list with this 
+shorter improved list only (16 tags total):
+Screen Broken, Battery Issue, Charging Port, Speaker Issue,
+Mic Issue, Back Glass, Water Damage, Hanging / Lag,
+Touch Issue, Camera Issue, Network Issue, WiFi Issue,
+Software Crash, App Not Working, Factory Reset Required,
+Virus / Malware
 
-Glass card effect (apply to ALL cards/containers):
-  - Use BackdropFilter with ImageFilter.blur(sigmaX: 12, sigmaY: 12).
-  - Container decoration:
-      color: Colors.white.withOpacity(0.55)
-      borderRadius: BorderRadius.circular(24)
-      border: Border.all(color: Colors.white.withOpacity(0.6), width: 1.2)
-      boxShadow: [
-        BoxShadow(
-          color: Colors.blue.withOpacity(0.08),
-          blurRadius: 24, spreadRadius: 2,
-        )
-      ]
-  - Wrap in ClipRRect with matching borderRadius for blur to clip correctly.
-
-Background:
-  - Use a full-screen gradient background on every screen:
-      LinearGradient(
-        colors: [Color(0xFFE8F0FF), Color(0xFFF5F0FF), Color(0xFFE0F7FF)],
-        begin: Alignment.topLeft, end: Alignment.bottomRight,
-      )
-  - Add 2–3 large soft blurred colored circles (blobs) positioned in corners 
-    of the screen as decorative background elements (use positioned containers 
-    with blur, opacity 0.25, colors: blue, purple, teal).
-
-Typography & spacing:
-  - All font sizes increase by 1pt for readability.
-  - Use more generous padding (20px inside cards instead of 14px).
-  - Section labels use uppercase letter-spacing 1.2.
-
-AppBar:
-  - Transparent AppBar with blur effect (use SliverAppBar or custom).
-  - No hard background color — glass effect behind title.
-
-Buttons:
-  - Primary buttons: gradient background (Blue #1A73E8 → #0D47A1), 
-    borderRadius 20, slight shadow.
-  - Secondary buttons: glass style (white with opacity + border).
-
-Chips (issue tags, filters):
-  - Selected: solid gradient blue.
-  - Unselected: glass style with blue border.
-
-Bottom sheets:
-  - Glass background with blur, rounded top corners radius 28.
+Make each tag chip smaller:
+- Font size: 11
+- Padding: EdgeInsets.symmetric(horizontal:10, vertical:5)
+- Wrap spacing: 6, runSpacing: 6
 
 ─────────────────────────────────────────────
-CHANGE 4: WHATSAPP MESSAGE ON JOB DONE
+FIX 4: BILL — ADD ESTIMATED DELIVERY TIME
 ─────────────────────────────────────────────
+On the bill preview and printed bill, calculate and show 
+the estimated ready time like this:
 
-- When a job is marked as Done, automatically open WhatsApp with a 
-  pre-filled message to the customer's saved phone number.
-- The auto-generated message template (in English + Urdu mix):
+Logic:
+- Take receivedAt time
+- Parse estimatedTime field:
+    "1 Hour"   → add 1 hour
+    "2 Hours"  → add 2 hours
+    "3 Hours"  → add 3 hours
+    "Same Day" → end of same day (show "Today by 8:00 PM")
+    "Tomorrow" → next day same time
+    "2 Days"   → add 2 days
+    "1 Week"   → add 7 days
+    Any other text → show as-is without calculation
 
-  "Assalam o Alaikum [CustomerName] Sahab! 🙏
+Display on bill between Estimated Price and Received rows:
+    Ready By:    02:15 PM  (calculated time)
+    Received:    12:15 PM
 
-  Aap ka [DeviceModel] repair ho gaya hai. ✅
-  Aap JTC Lab se kabhi bhi le sakte hain.
-
-  Bill Amount: Rs. [Price]
-
-  Shukriya JTC Lab choose karne ka! 💙
-
-  📞 Usman: 0345-7599995
-  📞 Saad:  0345-7701965
-  📍 نزد ڈھول سکندر، محلہ گڑھ، چنیوٹ"
-
-- Use url_launcher with wa.me deep link (already in project).
-- Format phone number to international +92 format before building URL.
-- Show a confirm dialog before opening WhatsApp:
-    Title: "Send WhatsApp Message?"
-    Body: "Send repair completion message to [CustomerName]?"
-    Buttons: "Send" (green) | "Skip" (gray)
+Format the time as: hh:mm a (12-hour with AM/PM)
 
 ─────────────────────────────────────────────
-CHANGE 5: CUSTOMER PHOTO UPLOAD
+FIX 5: UPDATE SAAD PHONE NUMBER
 ─────────────────────────────────────────────
+In AppConstants, change:
+    owner2Phone from '0345-7701965' to '0345-7595781'
 
-- In the New Job / Edit Job form, add a "Customer Photo" field 
-  (separate from the device photo field already in the app).
-- UI: A circular avatar picker (80x80) with a camera icon overlay.
-- On tap: show bottom sheet with two options:
-    - 📷 Take Photo (camera)
-    - 🖼️ Choose from Gallery
-- After selection: compress image to max 400x400px, quality 70%, 
-  save to app documents directory.
-- Store the image file path in RepairJob model as: customerImagePath (String?)
-- Display the customer photo:
-    - As circular avatar on the Job Card in the dashboard.
-    - As larger circle (100x100) on the Job Detail screen.
-    - Do NOT print the customer photo on the bill.
+Update this everywhere it appears:
+- AppConstants.dart
+- WhatsApp message templates in whatsapp_utils.dart
+- Bill preview in print_bill_screen.dart
+- PDF generation
+- Splash screen if shown
+- Any hardcoded string anywhere in the project
 
 ─────────────────────────────────────────────
-CHANGE 6: MOBILE MODEL AUTO-SUGGESTION
+FIX 6: BILL TERMS AND CONDITIONS
 ─────────────────────────────────────────────
+Replace current 3 bill notes with exactly these 2 lines only:
 
-- Replace the plain "Mobile Brand/Model" text field with an 
-  Autocomplete<String> widget.
-- Build a comprehensive local list of mobile models (no internet needed).
-  Include at minimum these brands and their popular models:
+Line 1: • Please collect your device within 30 days of completion.
+Line 2: • We are not responsible for any data loss during repair.
 
-  Samsung: Galaxy A14, A24, A34, A54, A74, S23, S23+, S23 Ultra, S24, S24+,
-           S24 Ultra, M14, M34, M54, F14, F54, A05, A05s, A15, A25, A35, A55
+Remove the following completely from the bill:
+- "Device checked thoroughly before and after repair" line
+- "15 days warranty on replaced parts only" line
+- "Thank You!" text
+- "Visit Again" or any goodbye message
 
-  iPhone: iPhone 11, 11 Pro, 11 Pro Max, 12, 12 Pro, 12 Pro Max, 13, 13 Pro,
-          13 Pro Max, 14, 14 Pro, 14 Pro Max, 15, 15 Pro, 15 Pro Max,
-          SE (2nd Gen), SE (3rd Gen)
+Keep the Urdu address at the bottom:
+نزد ڈھول سکندر، محلہ گڑھ، چنیوٹ
 
-  Xiaomi / Redmi: Redmi 12, Redmi 12C, Redmi Note 12, Redmi Note 12 Pro,
-                  Redmi Note 13, Redmi Note 13 Pro, POCO X5, POCO X5 Pro,
-                  POCO M5, POCO M6 Pro, Xiaomi 13, Xiaomi 13T
+Update AppConstants.billNotes list with the 2 new lines only.
 
-  OPPO: A17, A17k, A38, A58, A78, A98, Reno 8, Reno 8 Pro, Reno 10, 
-        Reno 10 Pro, F23, F25 Pro
+─────────────────────────────────────────────
+FIX 7: WHATSAPP ISSUE MESSAGE — FIX BROKEN TEXT
+─────────────────────────────────────────────
+In whatsapp_utils.dart, the sendIssueFoundMessage function
+is using escaped \\n instead of real \n newlines.
+The message is sending literal \n text to WhatsApp.
 
-  Vivo: Y02, Y16, Y22, Y35, Y36, Y100, V25, V27, V29, V30, T1, T2 Pro
+Fix all \\n to \n in the message string.
+Also fix any \\n\\n to \n\n.
 
-  Realme: C30, C33, C53, C55, C67, 11, 11 Pro, Narzo 60, GT 5
+The correct fixed message template must be:
 
-  Tecno: Spark 10, Spark 20, Camon 20, Camon 30, Pop 7 Pro
+'Assalam o Alaikum $customerName! 👋\n\n'
+'Aap ke $deviceModel ki repair ke dauran ek aur masla mila hai:\n\n'
+'⚠️ $issueNote\n\n'
+'Meherbani karke humse rabta karein:\n'
+'📞 Usman: 0345-7599995\n'
+'📞 Saad: 0345-7595781\n\n'
+'JTC Repair Lab\n'
+'نزد ڈھول سکندر، محلہ گڑھ، چنیوٹ'
 
-  Infinix: Hot 30, Hot 40, Note 30, Note 40, Smart 8, Zero 30
+Make sure Uri.encodeComponent is applied AFTER building 
+the full string, not before.
 
-  OnePlus: Nord CE 3, Nord 3, 11, 11R, 12
+─────────────────────────────────────────────
+FIX 8: JOB DETAIL SCREEN IMPROVEMENTS
+─────────────────────────────────────────────
+A) Image preview:
+- When user taps the device image on job detail screen,
+  open a full screen image viewer
+- Show the image in a black background full screen page
+- Add a close button (X) at top right to dismiss
+- Use Hero animation from card thumbnail to full screen
+- Use InteractiveViewer widget so user can pinch to zoom
 
-  Motorola: Moto G54, G84, G Power 2024, Edge 40
+B) Currency change:
+- Change all instances of "Rs." to "PKR" throughout 
+  the entire app including job cards, detail screen, 
+  bill, PDF, and any other place currency is shown
 
-- Filter suggestions as user types (case-insensitive contains search).
-- Show suggestions in a glass-style dropdown list (max 6 visible, scrollable).
-- User can also type a custom model not in the list — that is allowed.
-- Store the final typed/selected value as usual in mobileModel field.
+C) Received time display:
+- In the Repair Information card on job detail screen,
+  add a new row showing:
+  Label: "Received At"
+  Value: formatted as "30-Apr-2025 02:30 PM"
+  Use AppDateUtils.formatDateTimeShort() for this
+  Show it below the Estimated Time row
 
-═══════════════════════════════════════════════════════
-END OF MODIFICATIONS — Apply all 6 changes to the app.
-Keep all existing features intact. Do not remove anything.
-═══════════════════════════════════════════════════════
+─────────────────────────────────────────────
+FIX 9: ALLOW STATUS CHANGE AFTER ISSUE FOUND
+─────────────────────────────────────────────
+Currently after a job is marked "issue_found" there is 
+no way to change it. Add these options:
+
+On the Job Card action buttons:
+- If status is "issue_found" or "done", show two buttons:
+  Button 1: "Mark Pending" (orange color)
+  Button 2: "Mark Done" (green) — only if current is not done
+
+On the Job Detail screen bottom action bar:
+- If status is "issue_found": show Mark Pending + Mark Done buttons
+- If status is "done": show Mark Pending button only
+
+In RepairProvider, add this method:
+  Future<void> markPending(String id) async {
+    final job = _box.get(id);
+    if (job != null) {
+      job.status = 'pending';
+      job.completedAt = null;
+      job.extraIssueNote = null;
+      await job.save();
+      notifyListeners();
+    }
+  }
+
+Show a confirmation dialog before changing status to pending.
+Dialog title: "Move to Pending?"
+Dialog message: "This will reset the job status to pending."
+
+─────────────────────────────────────────────
+FIX 10: TEXT VISIBILITY + ISSUE FOUND CARD COLOR
+─────────────────────────────────────────────
+A) Make all text darker and bolder throughout the app:
+- All body text: change color to Color(0xFF1A1A2E) — near black
+- All secondary text: change from gray #6B7280 to #3D3D3D 
+  — darker gray
+- All card title text: fontWeight increase to FontWeight.w700
+- All label text: fontWeight increase to FontWeight.w600
+- In the theme file, update bodyMedium and bodySmall 
+  text colors to be darker
+- On job cards specifically make customer name, 
+  phone, price text all FontWeight.w600 minimum
+
+B) Fix "Additional Issue Found" card color:
+- Current problem: red background with red/gray text 
+  is unreadable
+- Change the card to this design:
+    Background: Color(0xFFFFF3F3) — very light pink/white
+    Left border: 4px solid Color(0xFFE74C3C) — red accent
+    Remove the red background entirely
+    Icon color: Color(0xFFE74C3C) red
+    Title text: Color(0xFFB71C1C) — dark red, FontWeight.w700
+    Body text: Color(0xFF1A1A2E) — near black, readable
+    Use a Container with BoxDecoration border instead of 
+    GlassCard with glassColor for this specific card only
+
+═══════════════════════════════════════════════
+END OF FIXES — Apply all 10. Keep everything else intact.
+═══════════════════════════════════════════════

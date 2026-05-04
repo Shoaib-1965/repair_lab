@@ -11,13 +11,13 @@ class GlassCard extends StatelessWidget {
   final BorderRadius borderRadius;
 
   const GlassCard({
-    Key? key,
+    super.key,
     required this.child,
     this.padding = const EdgeInsets.all(20),
     this.blurSigma = 12,
     this.glassColor = Colors.white,
     this.borderRadius = const BorderRadius.all(Radius.circular(24)),
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -55,11 +55,11 @@ class GlassButton extends StatelessWidget {
   final double width;
 
   const GlassButton({
-    Key? key,
+    super.key,
     required this.label,
     required this.onPressed,
     this.width = double.infinity,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -97,11 +97,11 @@ class GradientButton extends StatelessWidget {
   final double width;
 
   const GradientButton({
-    Key? key,
+    super.key,
     required this.label,
     required this.onPressed,
     this.width = double.infinity,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -152,12 +152,12 @@ class GlassChip extends StatelessWidget {
   final IconData? icon;
 
   const GlassChip({
-    Key? key,
+    super.key,
     required this.label,
     required this.isSelected,
     required this.onSelected,
     this.icon,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -228,7 +228,7 @@ class GradientBlobBackground extends StatelessWidget {
   final bool showBlobs;
 
   const GradientBlobBackground({
-    Key? key,
+    super.key,
     required this.child,
     this.gradientColors = const [
       Color(0xFFE8F0FF),
@@ -236,7 +236,7 @@ class GradientBlobBackground extends StatelessWidget {
       Color(0xFFE0F7FF),
     ],
     this.showBlobs = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -318,8 +318,7 @@ class GlassBottomSheet extends StatelessWidget {
   final Widget child;
   final double height;
 
-  const GlassBottomSheet({Key? key, required this.child, this.height = 0.5})
-    : super(key: key);
+  const GlassBottomSheet({super.key, required this.child, this.height = 0.5});
 
   @override
   Widget build(BuildContext context) {

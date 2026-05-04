@@ -107,13 +107,13 @@ class _PrintBillScreenState extends State<PrintBillScreen> {
           : result.status == ShareResultStatus.dismissed
               ? 'Share cancelled'
               : 'Bill image ready 📷';
-      ScaffoldMessenger.of(this.context) // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context) // ignore: use_build_context_synchronously
           .showSnackBar(
         SnackBar(content: Text(msg), duration: const Duration(seconds: 2)),
       );
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(this.context) // ignore: use_build_context_synchronously
+      ScaffoldMessenger.of(context) // ignore: use_build_context_synchronously
           .showSnackBar(SnackBar(content: Text('Error: $e')));
     } finally {
       if (mounted) setState(() => _isLoading = false);
